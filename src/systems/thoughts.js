@@ -3,7 +3,7 @@ import { makeThoughtProps, evaluateValence } from '../valence.js';
 import { thoughtSprite } from '../art/effects.js';
 
 export const QUEUE_CAP = 6;
-export const SLOT_X0 = 24;
+export const SLOT_X0 = 32;
 export const SLOT_DX = 28;
 export const SLOT_Y = 12;
 export const THOUGHT_SPEED = 130;

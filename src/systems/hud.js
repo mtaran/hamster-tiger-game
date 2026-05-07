@@ -28,10 +28,11 @@ export function hudSystem(world) {
     }
   }
 
-  // "Next" hint above slot 0
+  // "Next" hint to the left of slot 0. Anchored close to the canvas
+  // edge to leave breathing room between the label and the sprite.
   ctx.fillStyle = '#ffe070';
   ctx.font = '6px monospace';
-  ctx.fillText('NEXT', SLOT_X0 - 19, SLOT_Y + 2);
+  ctx.fillText('NEXT', 2, SLOT_Y + 2);
 
   // Anger meter — top-right of the belt strip. Label sits below the
   // bar so it doesn't clip the top edge of the canvas.
