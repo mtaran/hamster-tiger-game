@@ -36,8 +36,9 @@ export function hudSystem(world) {
   ctx.font = '6px monospace';
   ctx.fillText('NEXT', SLOT_X0 - 19, SLOT_Y + 2);
 
-  // Anger meter — bottom-right of the belt
-  const meterX = viewW - 60, meterY = 4, meterW = 56, meterH = 6;
+  // Anger meter — top-right of the belt strip. Label sits below the
+  // bar so it doesn't clip the top edge of the canvas.
+  const meterX = viewW - 60, meterY = 5, meterW = 56, meterH = 6;
   ctx.fillStyle = '#000';
   ctx.fillRect(meterX, meterY, meterW, meterH);
   const tiger = world.queryFirst(C.TigerState);
@@ -51,7 +52,7 @@ export function hudSystem(world) {
     ctx.strokeStyle = '#ffe070';
     ctx.strokeRect(meterX, meterY, meterW, meterH);
     ctx.fillStyle = '#ffe070';
-    ctx.fillText('TIGER MOOD', meterX, meterY - 1);
+    ctx.fillText('TIGER MOOD', meterX, meterY + meterH + 6);
   }
 
   // Controls hint at bottom edge.
