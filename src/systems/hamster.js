@@ -76,8 +76,10 @@ export function tearLandingSystem(world) {
         }
       }
       if (!merged) {
+        // Place puddle a touch above where the tear lands so it
+        // sits near the hamster's feet rather than well below them.
         world.createEntity({
-          [C.Position]: { x: e.position.x, y: e.position.y + 4 },
+          [C.Position]: { x: e.position.x, y: e.position.y - 4 },
           [C.Puddle]:   { size: 2 },
         });
       }
