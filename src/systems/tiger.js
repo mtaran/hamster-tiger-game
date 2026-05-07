@@ -2,7 +2,7 @@ import * as C from '../components.js';
 
 // Tiger constants — exposed for tests / tuning.
 export const ANGER_MAX = 100;
-export const ANGER_DECAY_PER_S = 4;          // how fast anger drops when neutral
+export const ANGER_RESIDUAL = 35;             // anger left over once an angry phase ends
 export const ANGRY_DURATION_S = 7;            // how long an angry phase lasts
 export const FIRE_COOLDOWN_S = 0.55;          // gap between fireballs
 export const FIRE_SPEED = 80;                 // logical px / s
@@ -31,7 +31,7 @@ export function tigerSystem(world, dt) {
     }
 
     if (t.state === 'neutral') {
-      t.anger = Math.max(0, t.anger - ANGER_DECAY_PER_S * dt);
+      // Anger does NOT drift on its own — only player hits/misses move it.
       if (t.anger >= ANGER_MAX) {
         t.state = 'angry';
         t.angryTimer = ANGRY_DURATION_S;
@@ -43,13 +43,18 @@ export function tigerSystem(world, dt) {
     if (t.state === 'angry') {
       t.angryTimer -= dt;
       t.fireCooldown -= dt;
+      // While spewing fire, the meter visibly drains as the tiger
+      // releases its rage. By end of the angry phase it bottoms out
+      // at ANGER_RESIDUAL.
+      const drainRate = (ANGER_MAX - ANGER_RESIDUAL) / ANGRY_DURATION_S;
+      t.anger = Math.max(ANGER_RESIDUAL, t.anger - drainRate * dt);
       if (t.fireCooldown <= 0) {
         spawnFireball(world, e.position);
         t.fireCooldown = FIRE_COOLDOWN_S;
       }
       if (t.angryTimer <= 0) {
         t.state = 'neutral';
-        t.anger = 35;     // residual simmer
+        t.anger = ANGER_RESIDUAL;
       }
       continue;
     }

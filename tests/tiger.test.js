@@ -109,11 +109,25 @@ test('sad state decays back to neutral after sadTimer runs out', () => {
   assert.equal(ts.anger, 0);
 });
 
-test('anger decays in neutral state', () => {
+test('anger does NOT change on its own in neutral state', () => {
   const { w, tiger } = makeWorld();
   const ts = w.getComponent(tiger, C.TigerState);
   ts.anger = 50;
   tigerSystem(w, 1.0);
-  assert.ok(ts.anger < 50);
-  assert.ok(ts.anger >= 0);
+  assert.equal(ts.anger, 50);                 // unchanged after a full second
+  // Even after lots of ticks.
+  for (let i = 0; i < 100; i++) tigerSystem(w, 0.1);
+  assert.equal(ts.anger, 50);
+});
+
+test('anger drains while spewing fire (angry state)', () => {
+  const { w, tiger } = makeWorld();
+  const ts = w.getComponent(tiger, C.TigerState);
+  ts.state = 'angry';
+  ts.angryTimer = 5;
+  ts.fireCooldown = 99;                       // skip fireball spawn
+  ts.anger = 100;
+  tigerSystem(w, 1.0);
+  assert.ok(ts.anger < 100, `anger should drain, got ${ts.anger}`);
+  assert.ok(ts.anger >= 35, `anger should not drop below residual, got ${ts.anger}`);
 });
