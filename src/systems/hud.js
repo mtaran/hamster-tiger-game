@@ -42,8 +42,9 @@ export function hudSystem(world) {
   const tiger = world.queryFirst(C.TigerState);
   if (tiger) {
     const frac = Math.min(1, tiger.tigerState.anger / ANGER_MAX);
-    const r = Math.floor(80 + frac * 175);
-    const g = Math.floor(180 - frac * 160);
+    // Yellow at empty → orange in the middle → red at full.
+    const r = Math.floor(200 + frac * 55);
+    const g = Math.floor(200 - frac * 180);
     const b = 30;
     ctx.fillStyle = `rgb(${r},${g},${b})`;
     ctx.fillRect(meterX + 1, meterY + 1, Math.max(0, (meterW - 2) * frac), meterH - 2);
