@@ -40,6 +40,8 @@ function installDomMocks() {
     addEventListener: () => {},
     removeEventListener: () => {},
   };
+  globalThis.document.addEventListener = () => {};
+  globalThis.document.hidden = false;
   globalThis.performance = { now: () => Date.now() };
   globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
 }

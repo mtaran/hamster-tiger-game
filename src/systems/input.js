@@ -16,9 +16,16 @@ export function createInputResource() {
     down.add(e.code);
   }
   function onKeyUp(e) { down.delete(e.code); }
+  // Tab-switch / window-defocus drops the keyup event, leaving keys
+  // "stuck". Clear held state whenever we lose focus or visibility.
+  function clearAll() { down.clear(); just.clear(); }
 
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
+  window.addEventListener('blur', clearAll);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) clearAll();
+  });
 
   return {
     isDown: (code) => down.has(code),
@@ -27,6 +34,7 @@ export function createInputResource() {
     destroy: () => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', clearAll);
     },
   };
 }
