@@ -4,7 +4,7 @@
   "description": "A tiny top-down 2D game where a hamster shares thoughts with a tiger.",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/",
+    "test": "node --test tests/*.test.js",
     "serve": "python3 -m http.server 8000"
   },
   "license": "MIT"
