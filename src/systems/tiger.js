@@ -4,8 +4,9 @@ import * as C from '../components.js';
 export const ANGER_MAX = 100;
 export const ANGER_RESIDUAL = 35;             // anger left over once an angry phase ends
 export const ANGRY_DURATION_S = 7;            // how long an angry phase lasts
-export const FIRE_COOLDOWN_S = 0.55;          // gap between fireballs
+export const FIRE_COOLDOWN_S = 0.27;          // gap between fireballs
 export const FIRE_SPEED = 80;                 // logical px / s
+export const FIRE_RING_RADIUS = 22;           // outer flame radius around angry tiger
 export const SAD_DURATION_S = 4;
 // Tuned so even optimal play (good thoughts hit, bad thoughts thrown
 // off-screen) trends upward: -11 + 14 = +3 net per good/bad pair.
