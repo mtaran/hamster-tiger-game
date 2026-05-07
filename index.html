@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hamster &amp; Tiger</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #1a1320;
+      color: #eee;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      overflow: hidden;
+      height: 100%;
+    }
+    #wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100vh;
+    }
+    canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: #2b1f3a;
+      box-shadow: 0 0 32px #0008;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="game" width="480" height="320"></canvas>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
