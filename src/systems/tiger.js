@@ -7,9 +7,13 @@ export const ANGRY_DURATION_S = 7;            // how long an angry phase lasts
 export const FIRE_COOLDOWN_S = 0.55;          // gap between fireballs
 export const FIRE_SPEED = 80;                 // logical px / s
 export const SAD_DURATION_S = 4;
-export const ANGER_GAIN_BAD_THOUGHT = 18;
-export const ANGER_GAIN_MISS = 8;
-export const ANGER_LOSS_GOOD_THOUGHT = 30;
+// Tuned so even optimal play (good thoughts hit, bad thoughts thrown
+// off-screen) trends upward: -11 + 14 = +3 net per good/bad pair.
+// First fire arrives in ~22 player actions; subsequent fires in ~22
+// more (anger resets to ANGER_RESIDUAL=35, not 0).
+export const ANGER_GAIN_BAD_THOUGHT = 24;
+export const ANGER_GAIN_MISS = 14;
+export const ANGER_LOSS_GOOD_THOUGHT = 11;
 
 // Tiger state machine + look tracking. Fireball spawning happens here
 // while the tiger is angry. The actual movement of the fireballs is
