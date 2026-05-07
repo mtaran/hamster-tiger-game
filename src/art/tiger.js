@@ -148,8 +148,10 @@ const PALETTE_SAD = {
   'L': '#1a0808',
 };
 
-// Tear overlay for sad tiger (after hamster gets hit).
-const TEAR = [
+// Tear overlays for sad tiger. Positions match the eye L's in each
+// base sprite; up-facing has no tears since the back of the head is
+// shown.
+const TEAR_DOWN = [
   '................................',
   '................................',
   '................................',
@@ -164,12 +166,47 @@ const TEAR = [
   '................................',
   '................................',
   '................................',
-  '...........T............T.......',
-  '...........T............T.......',
-  '...........t............t.......',
+  '................................',
+  '.............T.......T..........',
+  '.............T.......T..........',
+  '.............t.......t..........',
+  '................................',
+  '................................',
+  '.............T.......T..........',
+  '................................',
+  '.............t.......t..........',
   '................................',
   '................................',
   '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+];
+
+const TEAR_LEFT = [
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '................................',
+  '...........T....................',
+  '...........T....................',
+  '...........t....................',
+  '................................',
+  '...........T....................',
+  '...........t....................',
   '................................',
   '................................',
   '................................',
@@ -197,51 +234,24 @@ function paletteFor(state) {
   }
 }
 
-// Look-direction shifts the pupil character in eye rows. We bake this
-// into the grid by post-processing the L positions before painting.
-function applyLookDirection(grid, lookDir) {
-  // Shift pupil horizontally relative to the eye box. We find lines
-  // containing 'L' and shift the L within its enclosing E…E group.
-  const shifted = grid.map(row => {
-    if (!row.includes('L')) return row;
-    // For each L, possibly move it 1 char left/right within the W run.
-    const chars = row.split('');
-    for (let i = 0; i < chars.length; i++) {
-      if (chars[i] !== 'L') continue;
-      let target = i;
-      if (lookDir === 'left' && chars[i - 1] === 'W') target = i - 1;
-      else if (lookDir === 'right' && chars[i + 1] === 'W') target = i + 1;
-      else if (lookDir === 'up' || lookDir === 'down') target = i; // pupil position handled by base grid
-      if (target !== i) {
-        chars[i] = 'W';
-        chars[target] = 'L';
-      }
-    }
-    return chars.join('');
-  });
-  return shifted;
-}
-
-export function tigerSprite(facing, state, lookDir = facing) {
-  let base;
+export function tigerSprite(facing, state) {
+  let base, tearGrid;
   let flip = false;
   switch (facing) {
-    case 'down':  base = DOWN; break;
-    case 'up':    base = UP; break;
-    case 'left':  base = LEFT; break;
-    case 'right': base = LEFT; flip = true; break;
-    default:      base = DOWN;
+    case 'down':  base = DOWN; tearGrid = TEAR_DOWN; break;
+    case 'up':    base = UP;   tearGrid = null; break;       // back of head — no tears
+    case 'left':  base = LEFT; tearGrid = TEAR_LEFT; break;
+    case 'right': base = LEFT; tearGrid = TEAR_LEFT; flip = true; break;
+    default:      base = DOWN; tearGrid = TEAR_DOWN;
   }
 
-  // Eye-shift only affects horizontal directions on the down sprite.
-  let grid = base;
-  if (facing === 'down') grid = applyLookDirection(base, lookDir);
-
-  let body = paint(grid, paletteFor(state));
+  let body = paint(base, paletteFor(state));
   if (flip) body = flipH(body);
 
-  if (state === 'sad' && facing === 'down') {
-    body = compose(body, paint(TEAR, PALETTE_TEAR));
+  if (state === 'sad' && tearGrid) {
+    let tears = paint(tearGrid, PALETTE_TEAR);
+    if (flip) tears = flipH(tears);
+    body = compose(body, tears);
   }
   return body;
 }
