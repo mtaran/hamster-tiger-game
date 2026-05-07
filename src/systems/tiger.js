@@ -15,6 +15,9 @@ export const SAD_DURATION_S = 4;
 export const ANGER_GAIN_BAD_THOUGHT = 24;
 export const ANGER_GAIN_MISS = 14;
 export const ANGER_LOSS_GOOD_THOUGHT = 11;
+// Slow passive creep: ~1 anger/s, about 0.5 px/s on the 54-px-wide
+// meter bar. Adds gentle baseline pressure even if the player stalls.
+export const ANGER_PASSIVE_PER_S = 1;
 
 // Tiger state machine + look tracking. Fireball spawning happens here
 // while the tiger is angry. The actual movement of the fireballs is
@@ -36,7 +39,7 @@ export function tigerSystem(world, dt) {
     }
 
     if (t.state === 'neutral') {
-      // Anger does NOT drift on its own — only player hits/misses move it.
+      t.anger = Math.min(ANGER_MAX, t.anger + ANGER_PASSIVE_PER_S * dt);
       if (t.anger >= ANGER_MAX) {
         t.state = 'angry';
         t.angryTimer = ANGRY_DURATION_S;
