@@ -23,17 +23,15 @@ export function tigerSystem(world, dt) {
   for (const e of world.query(C.TigerState, C.Position)) {
     const t = e.tigerState;
 
-    // The tiger always turns to face the hamster — whole body, not
-    // just eyes. Pick the dominant axis to a cardinal direction.
+    // Pupil/look tracking — point eyes at the hamster.
     if (player) {
       const dx = player.position.x - e.position.x;
       const dy = player.position.y - e.position.y;
       if (Math.abs(dx) > Math.abs(dy)) {
-        t.facing = dx < 0 ? 'left' : 'right';
+        t.lookDir = dx < 0 ? 'left' : 'right';
       } else {
-        t.facing = dy < 0 ? 'up' : 'down';
+        t.lookDir = dy < 0 ? 'up' : 'down';
       }
-      t.lookDir = t.facing;
     }
 
     if (t.state === 'neutral') {

@@ -234,18 +234,42 @@ function paletteFor(state) {
   }
 }
 
-export function tigerSprite(facing, state) {
+// Look-direction shifts the pupil character in eye rows. We bake this
+// into the grid by post-processing the L positions before painting.
+function applyLookDirection(grid, lookDir) {
+  return grid.map(row => {
+    if (!row.includes('L')) return row;
+    const chars = row.split('');
+    for (let i = 0; i < chars.length; i++) {
+      if (chars[i] !== 'L') continue;
+      let target = i;
+      if (lookDir === 'left' && chars[i - 1] === 'W') target = i - 1;
+      else if (lookDir === 'right' && chars[i + 1] === 'W') target = i + 1;
+      if (target !== i) {
+        chars[i] = 'W';
+        chars[target] = 'L';
+      }
+    }
+    return chars.join('');
+  });
+}
+
+export function tigerSprite(facing, state, lookDir = facing) {
   let base, tearGrid;
   let flip = false;
   switch (facing) {
     case 'down':  base = DOWN; tearGrid = TEAR_DOWN; break;
-    case 'up':    base = UP;   tearGrid = null; break;       // back of head — no tears
+    case 'up':    base = UP;   tearGrid = null; break;        // back of head — no tears
     case 'left':  base = LEFT; tearGrid = TEAR_LEFT; break;
     case 'right': base = LEFT; tearGrid = TEAR_LEFT; flip = true; break;
     default:      base = DOWN; tearGrid = TEAR_DOWN;
   }
 
-  let body = paint(base, paletteFor(state));
+  // Eye-shift only meaningful on the down sprite (front-facing eyes).
+  let grid = base;
+  if (facing === 'down') grid = applyLookDirection(base, lookDir);
+
+  let body = paint(grid, paletteFor(state));
   if (flip) body = flipH(body);
 
   if (state === 'sad' && tearGrid) {

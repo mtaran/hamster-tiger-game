@@ -94,12 +94,11 @@ function resolveSprite(e, world) {
     const state = world.getComponent(e.id, C.HamsterState).state;
     return cached(`hamster:${facing}:${state}`, () => hamsterSprite(facing, state));
   }
-  // Tiger: rebuild based on facing × state. Tiger turns its whole
-  // body to face the hamster, so lookDir is no longer a separate axis.
+  // Tiger: rebuild based on facing × state × lookDir
   if (world.hasComponent(e.id, C.TigerState)) {
     const ts = world.getComponent(e.id, C.TigerState);
-    return cached(`tiger:${ts.facing}:${ts.state}`,
-      () => tigerSprite(ts.facing, ts.state));
+    return cached(`tiger:${ts.facing}:${ts.state}:${ts.lookDir}`,
+      () => tigerSprite(ts.facing, ts.state, ts.lookDir));
   }
   // Fireball: animate by phase
   if (world.hasComponent(e.id, C.FireballAnim)) {
