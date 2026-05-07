@@ -4,6 +4,12 @@
 
 export const SHAPES = ['circle', 'square', 'triangle', 'star', 'diamond'];
 
+// Fixed odd sizes: triangles and stars need a centered apex column,
+// which only works on odd widths. Picking from a small list also
+// makes the size rule visually obvious instead of subtle.
+export const SIZES = [7, 9, 11, 13];
+const SIZE_CUTOFF = 10;        // splits SIZES into [7,9] and [11,13]
+
 // Discrete color categories. Thoughts pick from these, so the player
 // sees a small set of distinct colors instead of an analog rainbow,
 // which makes the hue rule learnable without splitting hairs.
@@ -45,7 +51,7 @@ export function makeValenceRule(rng = Math.random) {
   if (r < 0.50) {
     return {
       kind: 'size',
-      cutoff: 9.5,                   // mid-range of 6..14
+      cutoff: SIZE_CUTOFF,
       dir: rng() < 0.5 ? 'gt' : 'lt',
     };
   }
@@ -93,7 +99,7 @@ export function makeThoughtProps(rng = Math.random) {
   const color = `hsl(${hue} ${sat}% ${lightness}%)`;
   return {
     shape: pick(rng, SHAPES),
-    size: 6 + Math.floor(rng() * 9),  // 6..14
+    size: pick(rng, SIZES),
     hueIndex,
     hue,
     brightness,

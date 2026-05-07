@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   makeValenceRule, evaluateValence, makeThoughtProps,
-  SHAPES, HUE_CATEGORIES,
+  SHAPES, SIZES, HUE_CATEGORIES,
 } from '../src/valence.js';
 
 // Deterministic RNG so we can assert exact shapes.
@@ -69,7 +69,8 @@ test('makeThoughtProps yields valid prop bags inside expected ranges', () => {
   for (let i = 0; i < 50; i++) {
     const p = makeThoughtProps();
     assert.ok(SHAPES.includes(p.shape));
-    assert.ok(p.size >= 6 && p.size <= 14);
+    assert.ok(SIZES.includes(p.size), `unexpected size ${p.size}`);
+    assert.equal(p.size % 2, 1, 'sizes must be odd for shape symmetry');
     assert.ok(p.hueIndex >= 0 && p.hueIndex < HUE_CATEGORIES.length);
     assert.equal(p.hue, HUE_CATEGORIES[p.hueIndex].hue);
     assert.ok(p.brightness >= 0.3 && p.brightness <= 1);
