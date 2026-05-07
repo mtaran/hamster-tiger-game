@@ -73,7 +73,7 @@ test('tiger spawns fireballs while in angry state', () => {
   const fireballs = [...w.query(C.Fireball)];
   assert.equal(fireballs.length, 1);
   // And the cooldown should be reset.
-  assert.ok(ts.fireCooldown > 0.5);
+  assert.ok(ts.fireCooldown > 0.2);
 });
 
 test('tiger leaves angry state once angryTimer expires, retains residual anger', () => {

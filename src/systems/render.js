@@ -2,6 +2,7 @@ import * as C from '../components.js';
 import { hamsterSprite } from '../art/hamster.js';
 import { tigerSprite } from '../art/tiger.js';
 import { drawFireRing, fireballSprite, puddleSprite, floorTile } from '../art/effects.js';
+import { FIRE_RING_RADIUS } from './tiger.js';
 
 // Cache sprite canvases per (kind, key) so we don't re-paint every
 // frame. State-driven rebuilds (e.g. tiger angry vs neutral) are
@@ -54,7 +55,7 @@ export function renderSystem(world) {
   // Tiger fire ring drawn behind the tiger so flames wrap around.
   for (const e of world.query(C.TigerState, C.Position)) {
     if (e.tigerState.state === 'angry') {
-      drawFireRing(ctx, e.position.x, e.position.y, 22, time);
+      drawFireRing(ctx, e.position.x, e.position.y, FIRE_RING_RADIUS, time);
     }
   }
 
@@ -76,7 +77,7 @@ export function renderSystem(world) {
   // Inner fire glow on top of angry tiger to give flames depth.
   for (const e of world.query(C.TigerState, C.Position)) {
     if (e.tigerState.state === 'angry') {
-      drawFireRing(ctx, e.position.x, e.position.y, 14, time + 0.5);
+      drawFireRing(ctx, e.position.x, e.position.y, FIRE_RING_RADIUS - 8, time + 0.5);
     }
   }
 
