@@ -3,7 +3,20 @@
 // tiger's reactions.
 
 export const SHAPES = ['circle', 'square', 'triangle', 'star', 'blob'];
-export const TEXTURES = ['solid', 'spots', 'stripes', 'glow'];
+
+// Discrete color categories. Thoughts pick from these, so the player
+// sees a small set of distinct colors instead of an analog rainbow,
+// which makes the hue rule learnable without splitting hairs.
+export const HUE_CATEGORIES = [
+  { name: 'red',    hue:   0 },
+  { name: 'orange', hue:  28 },
+  { name: 'yellow', hue:  55 },
+  { name: 'green',  hue: 120 },
+  { name: 'cyan',   hue: 180 },
+  { name: 'blue',   hue: 220 },
+  { name: 'purple', hue: 280 },
+  { name: 'pink',   hue: 320 },
+];
 
 function pick(rng, arr) {
   return arr[Math.floor(rng() * arr.length)];
@@ -29,32 +42,27 @@ export function makeValenceRule(rng = Math.random) {
       good: pickSubset(rng, SHAPES, 2),
     };
   }
-  if (r < 0.45) {
+  if (r < 0.50) {
     return {
       kind: 'size',
       cutoff: 9.5,                   // mid-range of 6..14
       dir: rng() < 0.5 ? 'gt' : 'lt',
     };
   }
-  if (r < 0.65) {
-    // Hue range — pick a 90-degree window on the color wheel.
-    const start = Math.floor(rng() * 360);
+  if (r < 0.75) {
+    // Contiguous slice of HUE_CATEGORIES, may wrap. Length 2 or 3
+    // out of 8, so 25–37% of categories are good.
+    const n = HUE_CATEGORIES.length;
     return {
       kind: 'hue',
-      start,
-      end: (start + 90) % 360,
-    };
-  }
-  if (r < 0.85) {
-    return {
-      kind: 'brightness',
-      cutoff: 0.55,
-      dir: rng() < 0.5 ? 'gt' : 'lt',
+      start: Math.floor(rng() * n),
+      length: rng() < 0.5 ? 2 : 3,
     };
   }
   return {
-    kind: 'texture',
-    good: pickSubset(rng, TEXTURES, 2),
+    kind: 'brightness',
+    cutoff: 0.55,
+    dir: rng() < 0.5 ? 'gt' : 'lt',
   };
 }
 
@@ -66,12 +74,10 @@ export function evaluateValence(rule, props) {
       return rule.dir === 'gt' ? props.size > rule.cutoff : props.size < rule.cutoff;
     case 'brightness':
       return rule.dir === 'gt' ? props.brightness > rule.cutoff : props.brightness < rule.cutoff;
-    case 'texture':
-      return rule.good.includes(props.texture);
     case 'hue': {
-      const h = props.hue;
-      if (rule.start <= rule.end) return h >= rule.start && h <= rule.end;
-      return h >= rule.start || h <= rule.end;        // wraps around 360
+      const n = HUE_CATEGORIES.length;
+      const offset = (props.hueIndex - rule.start + n) % n;
+      return offset < rule.length;
     }
   }
   return false;
@@ -79,19 +85,18 @@ export function evaluateValence(rule, props) {
 
 // Generate a random thought params bag.
 export function makeThoughtProps(rng = Math.random) {
-  const hue = Math.floor(rng() * 360);
+  const hueIndex = Math.floor(rng() * HUE_CATEGORIES.length);
+  const hue = HUE_CATEGORIES[hueIndex].hue;
   const brightness = 0.3 + rng() * 0.7;
-  const sat = 60 + rng() * 30;
+  const sat = 75 + rng() * 15;
   const lightness = Math.floor(35 + brightness * 35);
   const color = `hsl(${hue} ${sat}% ${lightness}%)`;
-  const accent = `hsl(${(hue + 180) % 360} ${sat}% ${Math.min(95, lightness + 30)}%)`;
   return {
     shape: pick(rng, SHAPES),
-    texture: pick(rng, TEXTURES),
     size: 6 + Math.floor(rng() * 9),  // 6..14
+    hueIndex,
     hue,
     brightness,
     color,
-    accent,
   };
 }

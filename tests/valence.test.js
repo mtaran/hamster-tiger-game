@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   makeValenceRule, evaluateValence, makeThoughtProps,
-  SHAPES, TEXTURES,
+  SHAPES, HUE_CATEGORIES,
 } from '../src/valence.js';
 
 // Deterministic RNG so we can assert exact shapes.
@@ -32,44 +32,49 @@ test('brightness rule respects gt/lt direction', () => {
   assert.equal(evaluateValence(gt, { brightness: 0.2 }), false);
 });
 
-test('hue rule with non-wrapping window', () => {
-  const rule = { kind: 'hue', start: 30, end: 120 };
-  assert.equal(evaluateValence(rule, { hue: 60 }), true);
-  assert.equal(evaluateValence(rule, { hue: 5 }),  false);
-  assert.equal(evaluateValence(rule, { hue: 200 }), false);
+test('categorical hue rule covers a contiguous slice', () => {
+  // Categories 2,3,4 are good (yellow, green, cyan).
+  const rule = { kind: 'hue', start: 2, length: 3 };
+  assert.equal(evaluateValence(rule, { hueIndex: 2 }), true);
+  assert.equal(evaluateValence(rule, { hueIndex: 3 }), true);
+  assert.equal(evaluateValence(rule, { hueIndex: 4 }), true);
+  assert.equal(evaluateValence(rule, { hueIndex: 1 }), false);
+  assert.equal(evaluateValence(rule, { hueIndex: 5 }), false);
 });
 
-test('hue rule that wraps past 360 still works', () => {
-  const rule = { kind: 'hue', start: 330, end: 60 }; // window crosses 0
-  assert.equal(evaluateValence(rule, { hue: 0 }),   true);
-  assert.equal(evaluateValence(rule, { hue: 350 }), true);
-  assert.equal(evaluateValence(rule, { hue: 30 }),  true);
-  assert.equal(evaluateValence(rule, { hue: 180 }), false);
+test('hue rule slice wraps around the category list', () => {
+  // Start at the last category, slice of 3 → wraps to 0,1.
+  const lastIdx = HUE_CATEGORIES.length - 1;
+  const rule = { kind: 'hue', start: lastIdx, length: 3 };
+  assert.equal(evaluateValence(rule, { hueIndex: lastIdx }), true);
+  assert.equal(evaluateValence(rule, { hueIndex: 0 }), true);
+  assert.equal(evaluateValence(rule, { hueIndex: 1 }), true);
+  assert.equal(evaluateValence(rule, { hueIndex: 2 }), false);
+  assert.equal(evaluateValence(rule, { hueIndex: lastIdx - 1 }), false);
 });
 
-test('makeValenceRule produces a usable rule for any rng draw', () => {
-  // Sample several rule-types by stepping rng through the bands.
+test('makeValenceRule covers all rule kinds across rng range', () => {
   const rngs = [
     seqRng([0.1, 0.5, 0.5]),    // shape branch
     seqRng([0.3, 0.5, 0.5]),    // size
     seqRng([0.55, 0.5, 0.5]),   // hue
-    seqRng([0.75, 0.5, 0.5]),   // brightness
-    seqRng([0.95, 0.5, 0.5]),   // texture
+    seqRng([0.95, 0.5, 0.5]),   // brightness
   ];
   const kinds = rngs.map(r => makeValenceRule(r).kind);
   assert.deepEqual(kinds.sort(),
-    ['brightness', 'hue', 'shape', 'size', 'texture']);
+    ['brightness', 'hue', 'shape', 'size']);
 });
 
 test('makeThoughtProps yields valid prop bags inside expected ranges', () => {
   for (let i = 0; i < 50; i++) {
     const p = makeThoughtProps();
     assert.ok(SHAPES.includes(p.shape));
-    assert.ok(TEXTURES.includes(p.texture));
     assert.ok(p.size >= 6 && p.size <= 14);
-    assert.ok(p.hue >= 0 && p.hue < 360);
+    assert.ok(p.hueIndex >= 0 && p.hueIndex < HUE_CATEGORIES.length);
+    assert.equal(p.hue, HUE_CATEGORIES[p.hueIndex].hue);
     assert.ok(p.brightness >= 0.3 && p.brightness <= 1);
     assert.match(p.color, /^hsl\(/);
+    assert.equal(p.texture, undefined);
   }
 });
 

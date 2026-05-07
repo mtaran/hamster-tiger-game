@@ -56,8 +56,8 @@ export function puddleSprite(size) {
 
 // Procedural "thought" sprite based on a parameter bag, e.g.
 //  { shape: 'circle'|'square'|'triangle'|'star'|'blob',
-//    color: '#aabbcc', accent: '#fff',
-//    size: int 6..14, brightness: 0..1, texture: 'solid'|'spots'|'stripes'|'glow' }
+//    color: '#aabbcc',
+//    size: int 6..14, brightness: 0..1 }
 export function thoughtSprite(props) {
   const size = props.size;
   const canvas = document.createElement('canvas');
@@ -66,7 +66,6 @@ export function thoughtSprite(props) {
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
   drawShape(ctx, props);
-  applyTexture(ctx, props);
   return canvas;
 }
 
@@ -124,27 +123,6 @@ function drawShape(ctx, { shape, color, size }) {
       ctx.fill();
       break;
     }
-  }
-}
-
-function applyTexture(ctx, { texture, accent, size }) {
-  if (!texture || texture === 'solid') return;
-  ctx.fillStyle = accent;
-  if (texture === 'spots') {
-    for (let i = 1; i < size; i += 3) {
-      for (let j = 1; j < size; j += 3) {
-        if (((i + j) % 5) === 0) ctx.fillRect(i, j, 1, 1);
-      }
-    }
-  } else if (texture === 'stripes') {
-    for (let y = 1; y < size; y += 2) {
-      ctx.fillRect(1, y, size - 2, 1);
-    }
-  } else if (texture === 'glow') {
-    ctx.globalAlpha = 0.5;
-    ctx.fillRect(1, 1, size - 2, 1);
-    ctx.fillRect(1, 1, 1, size - 2);
-    ctx.globalAlpha = 1;
   }
 }
 

@@ -18,13 +18,10 @@ export function hudSystem(world) {
   ctx.fillStyle = '#2c213e';
   ctx.fillRect(0, 22, viewW, 2);
 
-  // Slot frames + thoughts
+  // Thoughts. No slot frames — the NEXT label points at slot 0.
   const queue = world.resources.thoughtQueue;
   for (let i = 0; i < QUEUE_CAP; i++) {
     const x = SLOT_X0 + i * SLOT_DX;
-    ctx.strokeStyle = i === 0 ? '#ffe070' : '#544770';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x - 8, SLOT_Y - 8, 16, 16);
     if (queue[i]) {
       const s = queue[i].sprite;
       ctx.drawImage(s, Math.round(x - s.width / 2), Math.round(SLOT_Y - s.height / 2));
