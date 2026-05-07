@@ -54,76 +54,82 @@ export function puddleSprite(size) {
   return canvas;
 }
 
-// Procedural "thought" sprite based on a parameter bag, e.g.
-//  { shape: 'circle'|'square'|'triangle'|'star'|'blob',
-//    color: '#aabbcc',
-//    size: int 6..14, brightness: 0..1 }
+// Procedural "thought" sprite. Rasterized per-pixel so the result is
+// pure pixel art — every pixel is either fully `color` or fully
+// transparent, no anti-aliased edges.
+//   { shape: 'circle'|'square'|'triangle'|'star'|'diamond',
+//     color: '#aabbcc' or hsl(...), size: int 6..14 }
 export function thoughtSprite(props) {
-  const size = props.size;
+  const { shape, color, size } = props;
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
-  drawShape(ctx, props);
+  ctx.fillStyle = color;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      // Test the pixel center, not its top-left corner.
+      if (pixelInShape(shape, x + 0.5, y + 0.5, size)) {
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
   return canvas;
 }
 
-function drawShape(ctx, { shape, color, size }) {
-  ctx.fillStyle = color;
+function pixelInShape(shape, px, py, size) {
   const c = size / 2;
   switch (shape) {
-    case 'circle':
-      ctx.beginPath();
-      ctx.arc(c, c, c - 1, 0, Math.PI * 2);
-      ctx.fill();
-      break;
+    case 'circle': {
+      const dx = px - c, dy = py - c;
+      const r = c - 0.3;
+      return dx * dx + dy * dy <= r * r;
+    }
     case 'square':
-      ctx.fillRect(1, 1, size - 2, size - 2);
-      break;
+      return px >= 1 && px <= size - 1 && py >= 1 && py <= size - 1;
+    case 'diamond':
+      return Math.abs(px - c) + Math.abs(py - c) <= c - 0.4;
     case 'triangle': {
-      ctx.beginPath();
-      ctx.moveTo(c, 1);
-      ctx.lineTo(size - 1, size - 1);
-      ctx.lineTo(1, size - 1);
-      ctx.closePath();
-      ctx.fill();
-      break;
+      // Apex at (c, 1), base from (1, size-1) to (size-1, size-1).
+      if (py < 1 || py > size - 1) return false;
+      const t = (py - 1) / (size - 2);          // 0 at apex, 1 at base
+      const halfBase = t * (c - 1);
+      return Math.abs(px - c) <= halfBase;
     }
-    case 'star': {
-      const spikes = 5;
-      const inner = c * 0.45;
-      const outer = c - 1;
-      ctx.beginPath();
-      for (let i = 0; i < spikes * 2; i++) {
-        const r = i % 2 === 0 ? outer : inner;
-        const a = -Math.PI / 2 + (i * Math.PI) / spikes;
-        const x = c + Math.cos(a) * r;
-        const y = c + Math.sin(a) * r;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.fill();
-      break;
-    }
-    case 'blob': {
-      // wobbly polygon
-      ctx.beginPath();
-      const points = 8;
-      for (let i = 0; i < points; i++) {
-        const a = (i / points) * Math.PI * 2;
-        const r = c - 1 - ((i * 1.7) % 2);
-        const x = c + Math.cos(a) * r;
-        const y = c + Math.sin(a) * r;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.fill();
-      break;
+    case 'star':
+      return pointInPolygon(px, py, starVerts(size));
+  }
+  return false;
+}
+
+const STAR_CACHE = new Map();
+function starVerts(size) {
+  let v = STAR_CACHE.get(size);
+  if (v) return v;
+  const c = size / 2;
+  const outer = c - 0.5;
+  const inner = c * 0.45;
+  v = [];
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 === 0 ? outer : inner;
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    v.push([c + Math.cos(a) * r, c + Math.sin(a) * r]);
+  }
+  STAR_CACHE.set(size, v);
+  return v;
+}
+
+function pointInPolygon(px, py, verts) {
+  let inside = false;
+  for (let i = 0, j = verts.length - 1; i < verts.length; j = i++) {
+    const [xi, yi] = verts[i];
+    const [xj, yj] = verts[j];
+    if (((yi > py) !== (yj > py)) &&
+        (px < ((xj - xi) * (py - yi)) / (yj - yi) + xi)) {
+      inside = !inside;
     }
   }
+  return inside;
 }
 
 // Floor tile — a 16x16 grass/dirt patch tiled across the play area.

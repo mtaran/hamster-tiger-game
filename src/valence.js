@@ -2,7 +2,7 @@
 // The player doesn't see the rule — they have to infer it from the
 // tiger's reactions.
 
-export const SHAPES = ['circle', 'square', 'triangle', 'star', 'blob'];
+export const SHAPES = ['circle', 'square', 'triangle', 'star', 'diamond'];
 
 // Discrete color categories. Thoughts pick from these, so the player
 // sees a small set of distinct colors instead of an analog rainbow,
