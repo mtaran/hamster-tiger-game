@@ -79,6 +79,12 @@ export function renderSystem(world) {
       drawFireRing(ctx, e.position.x, e.position.y, 14, time + 0.5);
     }
   }
+
+  // Tears — small enough that we just plot them as 1x2 pixels here.
+  for (const e of world.query(C.Tear, C.Position)) {
+    ctx.fillStyle = '#7ad0ff';
+    ctx.fillRect(Math.round(e.position.x), Math.round(e.position.y), 1, 2);
+  }
 }
 
 function resolveSprite(e, world) {

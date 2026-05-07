@@ -59,12 +59,6 @@ export function hudSystem(world) {
   ctx.fillStyle = '#ddc8a8';
   ctx.fillText('WASD/arrows: move    Space: share thought    R: restart', 4, world.resources.viewH - 3);
 
-  // Render tears as little blue ovals (cheaper than per-tear sprite cache).
-  for (const e of world.query(C.Tear, C.Position)) {
-    ctx.fillStyle = '#7ad0ff';
-    ctx.fillRect(Math.round(e.position.x), Math.round(e.position.y), 1, 2);
-  }
-
   // Reset transform so the next frame starts clean.
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }

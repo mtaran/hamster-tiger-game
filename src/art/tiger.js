@@ -25,7 +25,7 @@ const DOWN = [
   '....BOOOOOOOOOOOOOOOOOOOOOOOOOB.',
   '....BOOBBOOoooooooooooooooBBOOB.',
   '....BOOBBoooEEEooooooEEEoooBBOB.',
-  '....BOoooooEWWLEoooEWWLEooooooB.',
+  '....BOoooooEWLWEoooEWLWEooooooB.',
   '....BOoooooEWWWEoooEWWWEooooooB.',
   '....BOoooooooEEoooooEEoooooooOB.',
   '....BOOoooooooEEEoEEEoooooooBOB.',
