@@ -21,6 +21,27 @@ npm run serve     # python3 -m http.server 8000
 
 No build step, no install.
 
+## Deploying to GitHub Pages
+
+Because this is plain static files, GitHub Pages works with no config.
+With the [`gh` CLI](https://cli.github.com/) authenticated, from the
+repo root:
+
+```sh
+# 1. Create the repo and push current branch.
+gh repo create mtaran/hamster-tiger-game --public --source=. --remote=origin --description "A tiny top-down 2D game where a hamster shares thoughts with a tiger." --push
+
+# 2. Enable Pages, serving from main branch root.
+gh api -X POST repos/mtaran/hamster-tiger-game/pages -f 'source[branch]=main' -f 'source[path]=/'
+```
+
+After ~30–60s, the game is live at:
+
+    https://mtaran.github.io/hamster-tiger-game/
+
+To redeploy, just push to `main`. To turn Pages off:
+`gh api -X DELETE repos/mtaran/hamster-tiger-game/pages`.
+
 ## Controls
 
 | Key                | Action                              |
